@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useAuthContext } from "@asgardeo/auth-react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminDashboard from "./components/AdminDashboard";
-import CustomerDashboard from "./components/CustomerDashboard";
+import InstructorDashboard from "./components/InstructorDashboard";
+import StudentDashboard from "./components/StudentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import slide1 from "./assets/images/slide1.jpg";
@@ -159,7 +160,16 @@ function App() {
                             path="/customer"
                             element={
                                 <ProtectedRoute allowedRoles={['customer']}>
-                                    <CustomerDashboard user={user} />
+                                    <InstructorDashboard user={user} />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/student"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <StudentDashboard user={user} />
                                 </ProtectedRoute>
                             }
                         />
@@ -169,7 +179,7 @@ function App() {
                                 roles.includes('admin') ? (
                                     <AdminDashboard user={user} />
                                 ) : (
-                                    <CustomerDashboard user={user} />
+                                    <InstructorDashboard user={user} />
                                 )
                             }
                         />

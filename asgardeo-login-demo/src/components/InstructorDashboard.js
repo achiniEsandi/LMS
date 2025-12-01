@@ -1,67 +1,174 @@
 import React from "react";
+import { FaBell } from "react-icons/fa";
+import { formatDistanceToNow } from "date-fns";
 
 export default function InstructorDashboard({ user }) {
-    const courses = [
-        { id: 1, title: "Mathematics 101", students: 30 },
-        { id: 2, title: "Physics 201", students: 25 },
-        { id: 3, title: "Chemistry 301", students: 28 },
-    ];
+  const courses = [
+    { id: 1, title: "Mathematics 101", students: 30 },
+    { id: 2, title: "Physics 201", students: 25 },
+    { id: 3, title: "Chemistry 301", students: 28 },
+    { id: 4, title: "Biology 101", students: 32 },
+    { id: 5, title: "Computer Science 201", students: 22 },
+  ];
 
-    const notifications = [
-        "New assignment submitted by John Doe.",
-        "Course evaluation form is due next week.",
-        "Staff meeting scheduled on Friday at 10 AM.",
-    ];
+  const notifications = [
+    { message: "New assignment submitted by John Doe.", time: new Date("2025-12-01T10:15:00"), type: "success" },
+    { message: "Course evaluation form is due next week.", time: new Date("2025-12-01T09:00:00"), type: "warning" },
+    { message: "Staff meeting scheduled on Friday at 10 AM.", time: new Date("2025-11-30T16:30:00"), type: "info" },
+    { message: "New student enrolled in Chemistry 301.", time: new Date("2025-12-01T08:45:00"), type: "success" },
+    { message: "Grade submissions are due tomorrow.", time: new Date("2025-11-30T14:20:00"), type: "warning" },
+  ];
 
-    return (
-        <div style={{ padding: "30px", fontFamily: "Arial, sans-serif" }}>
-            <h1 style={{ textAlign: "center", marginBottom: "20px", fontSize: "40px", fontWeight: "bold"}}>Instructor Dashboard</h1>
-            <p style={{ textAlign: "center", color: "#555" }}>
-                Welcome, <strong>{user.username}</strong> ({user.email})
-            </p>
+  const badgeColors = {
+    success: "#28a745",
+    warning: "#ffc107",
+    info: "#17a2b8",
+  };
 
-            {/* Dashboard Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "30px" }}>
-                
-                {/* Courses Card */}
-                <div style={{ padding: "20px", background: "#f8f9fa", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-                    <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold" }}>Courses You Teach</h2>
-                    <ul style={{ listStyle: "none", padding: 0 }}>
-                        {courses.map(course => (
-                            <li key={course.id} style={{ marginBottom: "10px", padding: "10px", background: "#ffffff", borderRadius: "5px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-                                {course.title} - <strong>{course.students} students</strong>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", background: "#f0f2f5" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "20px", fontSize: "42px", fontWeight: "bold", color: "#2c3e50" }}>
+        Instructor Dashboard
+      </h1>
+      <p style={{ textAlign: "center", color: "#555", fontSize: "16px" }}>
+        Welcome, <strong>{user.username}</strong> ({user.email})
+      </p>
 
-                {/* Notifications Card */}
-                <div style={{ padding: "20px", background: "#f8f9fa", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-                    <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold" }}>Notifications</h2>
-                    <ul style={{ listStyle: "none", padding: 0 }}>
-                        {notifications.map((note, index) => (
-                            <li key={index} style={{ marginBottom: "10px", padding: "10px", background: "#ffffff", borderRadius: "5px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-                                {note}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: "20px",
+        marginTop: "30px"
+      }}>
 
-                {/* Student Progress Card */}
-                <div style={{ padding: "20px", background: "#f8f9fa", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-                    <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold" }}>Student Progress</h2>
-                    <p>Track grades, attendance, and progress of students in your courses.</p><br></br>
-                    <button style={{ padding: "10px 20px", borderRadius: "5px", border: "none", background: "#007bff", color: "#fff", cursor: "pointer" }}>View Progress</button>
-                </div>
-
-                {/* Upload Materials Card */}
-                <div style={{ padding: "20px", background: "#f8f9fa", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-                    <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold" }}>Upload Materials / Assignments</h2>
-                    <input type="file" style={{ marginBottom: "10px" }} />
-                    <br /><br></br>
-                    <button style={{ padding: "10px 20px", borderRadius: "5px", border: "none", background: "#28a745", color: "#fff", cursor: "pointer" }}>Upload</button>
-                </div>
-            </div>
+        {/* Courses Card */}
+        <div style={{
+          padding: "20px",
+          background: "#ffffff",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          transition: "transform 0.2s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-5px)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+        >
+          <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold", color: "#34495e" }}>Courses You Teach</h2>
+          <ul style={{ listStyle: "none", padding: 0, maxHeight: "250px", overflowY: "auto" }}>
+            {courses.map(course => (
+              <li key={course.id} style={{
+                marginBottom: "10px",
+                padding: "10px",
+                background: "#f8f9fa",
+                borderRadius: "5px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                display: "flex",
+                justifyContent: "space-between",
+              }}>
+                <span>{course.title}</span>
+                <span><strong>{course.students} students</strong></span>
+              </li>
+            ))}
+          </ul>
         </div>
-    );
+
+        {/* Notifications Card */}
+        <div style={{
+          padding: "20px",
+          background: "#ffffff",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          transition: "transform 0.2s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-5px)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+        >
+          <h2 style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "28px", fontWeight: "bold", marginBottom: "15px", color: "#34495e" }}>
+            <FaBell /> Notifications
+          </h2>
+          <ul style={{ listStyle: "none", padding: 0, maxHeight: "250px", overflowY: "auto" }}>
+            {notifications.map((note, idx) => (
+              <li key={idx} style={{
+                marginBottom: "12px",
+                padding: "12px",
+                borderRadius: "8px",
+                background: "#f9f9f9",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontSize: "14px",
+                borderLeft: `5px solid ${badgeColors[note.type]}`,
+              }}>
+                <span>{note.message}</span>
+                <span style={{ fontSize: "12px", color: "#888", display: "flex", flexDirection: "column", textAlign: "right" }}>
+                  <span>{formatDistanceToNow(note.time, { addSuffix: true })}</span>
+                  <span>{note.time.toLocaleString()}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Student Progress Card */}
+        <div style={{
+          padding: "20px",
+          background: "#ffffff",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          transition: "transform 0.2s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-5px)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+        >
+          <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold", color: "#34495e" }}>Student Progress</h2>
+          <p>Track grades, attendance, and progress of students in your courses.</p>
+          <br />
+          <button style={{
+            padding: "10px 20px",
+            borderRadius: "5px",
+            border: "none",
+            background: "linear-gradient(90deg, #1d72b8, #33c3f0)",
+            color: "#fff",
+            cursor: "pointer",
+            transition: "background 0.3s"
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "linear-gradient(90deg, #33c3f0, #1d72b8)"}
+            onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(90deg, #1d72b8, #33c3f0)"}
+          >
+            View Progress
+          </button>
+        </div>
+
+        {/* Upload Materials Card */}
+        <div style={{
+          padding: "20px",
+          background: "#ffffff",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          transition: "transform 0.2s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-5px)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+        >
+          <h2 style={{ marginBottom: "15px", fontSize: "28px", fontWeight: "bold", color: "#34495e" }}>Upload Materials / Assignments</h2>
+          <input type="file" style={{ marginBottom: "10px" }} />
+          <br /><br />
+          <button style={{
+            padding: "10px 20px",
+            borderRadius: "5px",
+            border: "none",
+            background: "linear-gradient(90deg, #28a745, #58d68d)",
+            color: "#fff",
+            cursor: "pointer",
+            transition: "background 0.3s"
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "linear-gradient(90deg, #58d68d, #28a745)"}
+            onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(90deg, #28a745, #58d68d)"}
+          >
+            Upload
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
 }

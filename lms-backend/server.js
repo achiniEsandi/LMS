@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import usersRoute from "./routes/users.js";
 import coursesRoute from "./routes/courses.js";
 import assignmentsRoute from "./routes/assignments.js";
+import authRoute from "./routes/authRoute.js";
+
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/api/users", usersRoute);
 app.use("/api/courses", coursesRoute);
 app.use("/api/assignments", assignmentsRoute);
+app.use("/api/auth", authRoute);
+
 
 // Start server
 const PORT = process.env.PORT || 5000;

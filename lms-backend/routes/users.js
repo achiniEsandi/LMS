@@ -21,10 +21,18 @@ router.get("/", async (req, res) => {
     res.json(users);
 });
 
-// Get single user by ID
+
+// Get user by ID with populated enrolledCourses
 router.get("/:id", async (req, res) => {
-    const user = await User.findById(req.params.id).populate("enrolledCourses");
+  try {
+    const user = await User.findById(req.params.id)
+      .populate("enrolledCourses"); // <-- important
+    if (!user) return res.status(404).json({ error: "User not found" });
+
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

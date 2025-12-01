@@ -21,7 +21,7 @@ const Slideshow = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setIndex((prev) => (prev + 1) % slides.length);
-        }, 3000);
+        }, 3600);
         return () => clearInterval(interval);
     }, []);
 
@@ -157,9 +157,9 @@ function App() {
                             }
                         />
                         <Route
-                            path="/customer"
+                            path="/instructor"
                             element={
-                                <ProtectedRoute allowedRoles={['customer']}>
+                                <ProtectedRoute allowedRoles={['instructor']}>
                                     <InstructorDashboard user={user} />
                                 </ProtectedRoute>
                             }
@@ -178,11 +178,14 @@ function App() {
                             element={
                                 roles.includes('admin') ? (
                                     <AdminDashboard user={user} />
-                                ) : (
+                                ) : roles.includes('instructor') ? (
                                     <InstructorDashboard user={user} />
+                                ) : (
+                                    <StudentDashboard user={user} />
                                 )
                             }
-                        />
+                            />
+
                     </Routes>
                 </div>
             )}

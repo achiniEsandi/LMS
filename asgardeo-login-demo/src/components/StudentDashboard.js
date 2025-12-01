@@ -1,58 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBook, FaClipboardList, FaChartPie, FaCalendarAlt, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 export default function StudentDashboard({ user }) {
   const navigate = useNavigate();
 
-  const allCourses = [
-    { id: 1, title: "Mathematics 101" },
-    { id: 2, title: "Physics 201" },
-    { id: 3, title: "Chemistry 301" },
-    { id: 4, title: "Biology 101" },
-    { id: 5, title: "Computer Science 201" },
-  ];
-
-  const [enrolledCourses, setEnrolledCourses] = useState([
-    { id: 1, title: "Mathematics 101" },
-    { id: 2, title: "Physics 201" },
-  ]);
-
-  const assignments = [
-    { title: "Math Homework 1", due: "Dec 3, 2025" },
-    { title: "Physics Lab Report", due: "Dec 5, 2025" },
-  ];
-
-  const grades = [
-    { course: "Mathematics 101", grade: "A" },
-    { course: "Physics 201", grade: "B+" },
-  ];
-
-  const events = [
+  const [file, setFile] = useState(null);
+  const [title, setTitle] = useState("");
+  const [courseId, setCourseId] = useState("");
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [events] = useState([
     { title: "Webinar on AI", date: "Dec 7, 2025" },
     { title: "Club Meeting", date: "Dec 10, 2025" },
-  ];
+  ]);
 
-  const handleEnroll = (course) => {
-    if (!enrolledCourses.some(c => c.id === course.id)) {
-      setEnrolledCourses([...enrolledCourses, course]);
-      alert(`You have enrolled in ${course.title}!`);
-    } else {
-      alert(`You are already enrolled in ${course.title}.`);
+  // Fetch user info and enrolled courses
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/users/${user._id}`);
+        if (!res.ok) throw new Error("Failed to fetch user data");
+
+        const data = await res.json();
+        console.log("Fetched user:", data);
+
+        setEnrolledCourses(data.enrolledCourses || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // Fetch assignments uploaded by this student
+    const fetchAssignments = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/assignments?uploadedBy=${user._id}`);
+        if (!res.ok) throw new Error("Failed to fetch assignments");
+
+        const data = await res.json();
+        setAssignments(data || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUserData();
+    fetchAssignments();
+  }, [user._id]);
+
+  const handleFileChange = (e) => setFile(e.target.files[0]);
+
+  const handleUpload = async () => {
+    if (!file || !title || !courseId) return alert("Fill all fields");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("courseId", courseId);
+    formData.append("uploadedBy", user._id);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/assignments/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      alert("Assignment uploaded successfully!");
+      console.log("Uploaded assignment:", data);
+
+      setAssignments((prev) => [...prev, data]);
+      setFile(null);
+      setTitle("");
+      setCourseId("");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
-  };
-
-  const handleUploadAssignment = () => {
-    alert("Assignment uploaded successfully!");
   };
 
   const navigateToAllCourses = () => {
     alert("Navigate to All Courses page (implement routing here).");
   };
 
-  const goToProfile = () => {
-    navigate("/profile");
-  };
+  const goToProfile = () => navigate("/profile");
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Segoe UI', sans-serif" }}>
@@ -84,23 +117,11 @@ export default function StudentDashboard({ user }) {
           <div style={{ padding: "25px", background: "#ffffff", borderRadius: "15px", boxShadow: "0 6px 15px rgba(0,0,0,0.1)" }} id="enrolled">
             <h2 style={{ color: "#004d99", fontSize: "24px", marginBottom: "20px" }}><FaBook /> Enrolled Courses</h2>
             <ul style={{ fontSize: "18px", lineHeight: "1.8" }}>
-              {enrolledCourses.map((c) => (
-                <li key={c.id}>{c.title}</li>
-              ))}
+              {enrolledCourses.length === 0
+                ? <li>No courses enrolled yet.</li>
+                : enrolledCourses.map(c => <li key={c._id}>{c.title}</li>)}
             </ul>
-            <button 
-              onClick={navigateToAllCourses} 
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                border: "none",
-                backgroundColor: "#007acc",
-                color: "#fff",
-                cursor: "pointer",
-                fontSize: "16px"
-              }}
-            >
+            <button onClick={navigateToAllCourses} style={{ marginTop: "20px", padding: "10px 20px", borderRadius: "5px", border: "none", backgroundColor: "#007acc", color: "#fff", cursor: "pointer", fontSize: "16px" }}>
               Enroll in Another Course
             </button>
           </div>
@@ -109,21 +130,18 @@ export default function StudentDashboard({ user }) {
           <div style={{ padding: "25px", background: "#ffffff", borderRadius: "15px", boxShadow: "0 6px 15px rgba(0,0,0,0.1)" }} id="assignments">
             <h2 style={{ color: "#004d99", fontSize: "24px", marginBottom: "20px" }}><FaClipboardList /> Assignments</h2>
             <ul style={{ fontSize: "18px", lineHeight: "1.8" }}>
-              {assignments.map((a, idx) => <li key={idx}>{a.title} - Due {a.due}</li>)}
+              {assignments.length === 0
+                ? <li>No assignments uploaded yet.</li>
+                : assignments.map((a) => <li key={a._id}>{a.title} - {a.courseTitle || a.courseId}</li>)}
             </ul>
-            <button 
-              onClick={handleUploadAssignment} 
-              style={{
-                marginTop: "15px",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                border: "none",
-                backgroundColor: "#007acc",
-                color: "#fff",
-                cursor: "pointer",
-                fontSize: "16px"
-              }}
-            >
+
+            <input type="text" placeholder="Assignment Title" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 mb-2 w-full" />
+            <select value={courseId} onChange={(e) => setCourseId(e.target.value)} className="border p-2 mb-2 w-full">
+              <option value="">Select Course</option>
+              {enrolledCourses.map(c => <option key={c._id} value={c._id}>{c.title}</option>)}
+            </select>
+            <input type="file" onChange={handleFileChange} className="mb-2" />
+            <button onClick={handleUpload} style={{ marginTop: "15px", padding: "10px 20px", borderRadius: "5px", border: "none", backgroundColor: "#007acc", color: "#fff", cursor: "pointer", fontSize: "16px" }}>
               Upload Assignment
             </button>
           </div>
@@ -132,7 +150,9 @@ export default function StudentDashboard({ user }) {
           <div style={{ padding: "25px", background: "#ffffff", borderRadius: "15px", boxShadow: "0 6px 15px rgba(0,0,0,0.1)" }} id="grades">
             <h2 style={{ color: "#004d99", fontSize: "24px", marginBottom: "20px" }}><FaChartPie /> Grades</h2>
             <ul style={{ fontSize: "18px", lineHeight: "1.8" }}>
-              {grades.map((g, idx) => <li key={idx}>{g.course}: {g.grade}</li>)}
+              {grades.length === 0
+                ? <li>No grades yet.</li>
+                : grades.map((g, idx) => <li key={idx}>{g.course}: {g.grade}</li>)}
             </ul>
           </div>
 

@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useAuthContext } from "@asgardeo/auth-react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminDashboard from "./components/AdminDashboard";
-import CustomerDashboard from "./components/CustomerDashboard";
+import InstructorDashboard from "./components/InstructorDashboard";
+import StudentDashboard from "./components/StudentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import slide1 from "./assets/images/slide1.jpg";
@@ -20,7 +21,7 @@ const Slideshow = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setIndex((prev) => (prev + 1) % slides.length);
-        }, 3000);
+        }, 3600);
         return () => clearInterval(interval);
     }, []);
 
@@ -156,10 +157,19 @@ function App() {
                             }
                         />
                         <Route
-                            path="/customer"
+                            path="/instructor"
                             element={
-                                <ProtectedRoute allowedRoles={['customer']}>
-                                    <CustomerDashboard user={user} />
+                                <ProtectedRoute allowedRoles={['instructor']}>
+                                    <InstructorDashboard user={user} />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/student"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <StudentDashboard user={user} />
                                 </ProtectedRoute>
                             }
                         />
@@ -168,11 +178,14 @@ function App() {
                             element={
                                 roles.includes('admin') ? (
                                     <AdminDashboard user={user} />
+                                ) : roles.includes('instructor') ? (
+                                    <InstructorDashboard user={user} />
                                 ) : (
-                                    <CustomerDashboard user={user} />
+                                    <StudentDashboard user={user} />
                                 )
                             }
-                        />
+                            />
+
                     </Routes>
                 </div>
             )}
